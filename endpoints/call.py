@@ -856,7 +856,14 @@ class Controller(object):
         if req.has_body():
             body = dict(req.body_kwargs)
             if body:
-                for k in logging.IGNORE_KEYS:
+                IGNORE_KEYS = [
+                    # bugsnag chokes on unicode keys so these have to be byte strings
+                    b"password",
+                    b"sensitive",
+                    b"ssn",
+                    b"dob",
+                ]
+                for k in IGNORE_KEYS:
                     if k in body:
                         body[k] = "****"
                 self.logger.debug("BODY: {}".format(body))
