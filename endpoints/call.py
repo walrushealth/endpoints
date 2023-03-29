@@ -867,8 +867,9 @@ class Controller(object):
                     if k in body:
                         body[k] = "****"
                 self.logger.debug("BODY: {}".format(body))
+        body_str = ''.join(str(body).splitlines())
 
-        log_value = f"REQUEST m:{req.method} p:{req.path} result:{res.code} BODY:\"{body}\" uuid:{uuid} in {total} "
+        log_value = f"REQUEST m:{req.method} p:{req.path} result:{res.code} BODY:\"{body_str}\" uuid:{uuid} in {total} "
         if req.path == "/ping":
             self.logger.debug(log_value)
         else:
