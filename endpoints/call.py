@@ -857,23 +857,28 @@ class Controller(object):
             body = dict(req.body_kwargs)
             if body:
                 IGNORE_KEYS = [
-                    # bugsnag chokes on unicode keys so these have to be byte strings
-                    b"password",
-                    b"sensitive",
-                    b"ssn",
-                    b"dob",
+                    "password",
+                    "sensitive",
+                    "ssn",
+                    "dob",
                 ]
                 for k in IGNORE_KEYS:
                     if k in body:
                         body[k] = "****"
                 self.logger.debug("BODY: {}".format(body))
-        body_str = ''.join(str(body).splitlines())
 
-        log_value = f"REQUEST {req.method} {req.path} {res.code} BODY:\"{body_str}\" uuid:{uuid} in {total} "
-        if req.path == "/ping":
+        body_str = ''.join(str(body).splitlines())
+        body_param = f"BODY:\"{body_str}\""
+
+        log_value = f"REQUEST {req.method} {req.path} {res.code} {body_param} uuid:{uuid} in {total} "
+        if req.path == "/ping" or req.path == "/track/event":
             self.logger.debug(log_value)
         else:
+            if req.path == "/track/event":
+                log_value = f"REQUEST {req.method} {req.path} {res.code} uuid:{uuid} in {total} "
+
             self.logger.info(log_value)
+
 
         self.logger.debug("Request {}response {} {} in {}".format(
             uuid,
