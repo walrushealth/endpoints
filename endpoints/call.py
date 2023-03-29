@@ -777,9 +777,9 @@ class Controller(object):
                 uuid += " "
 
             if req.query:
-                self.logger.info("Request {}method: {} {}?{}".format(uuid, req.method, req.path, req.query))
+                self.logger.debug("Request {}method: {} {}?{}".format(uuid, req.method, req.path, req.query))
             else:
-                self.logger.info("Request {}method: {} {}".format(uuid, req.method, req.path))
+                self.logger.debug("Request {}method: {} {}".format(uuid, req.method, req.path))
 
             self.logger.debug("Request {}date: {}".format(
                 uuid,
