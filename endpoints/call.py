@@ -871,7 +871,7 @@ class Controller(object):
         body_param = f"BODY:\"{body_str}\""
 
         log_value = f"REQUEST {req.method} {req.path} {res.code} {body_param} uuid:{uuid} in {total} "
-        if req.path == "/ping" or req.path == "/track/event":
+        if req.path == "/ping":
             self.logger.debug(log_value)
         else:
             if req.path == "/track/event":
