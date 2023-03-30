@@ -777,21 +777,21 @@ class Controller(object):
                 uuid += " "
 
             if req.query:
-                self.logger.info("Request {}method: {} {}?{}".format(uuid, req.method, req.path, req.query))
+                self.logger.debug("Request {}method: {} {}?{}".format(uuid, req.method, req.path, req.query))
             else:
-                self.logger.info("Request {}method: {} {}".format(uuid, req.method, req.path))
+                self.logger.debug("Request {}method: {} {}".format(uuid, req.method, req.path))
 
-            self.logger.info("Request {}date: {}".format(
+            self.logger.debug("Request {}date: {}".format(
                 uuid,
                 datetime.datetime.utcfromtimestamp(start).strftime("%Y-%m-%dT%H:%M:%S.%f"),
             ))
 
             ip = req.ip
             if ip:
-                self.logger.info("Request {}IP address: {}".format(uuid, ip))
+                self.logger.debug("Request {}IP address: {}".format(uuid, ip))
 
             if 'authorization' in req.headers:
-                self.logger.info('Request {}auth: {}'.format(uuid, req.headers['authorization']))
+                self.logger.debug('Request {}auth: {}'.format(uuid, req.headers['authorization']))
 
             ignore_hs = set([
                 'accept-language',
@@ -804,7 +804,7 @@ class Controller(object):
             #hs = []
             for k, v in req.headers.items():
                 if k not in ignore_hs:
-                    self.logger.info("Request {}header {}: {}".format(uuid, k, v))
+                    self.logger.debug("Request {}header {}: {}".format(uuid, k, v))
                     #hs.append("Request header: {}: {}".format(k, v))
 
             #self.logger.info(os.linesep.join(hs))
@@ -845,13 +845,42 @@ class Controller(object):
             uuid += " "
 
         for k, v in res.headers.items():
-            self.logger.info("Request {}response header {}: {}".format(uuid, k, v))
+            self.logger.debug("Request {}response header {}: {}".format(uuid, k, v))
 
         stop = time.time()
         get_elapsed = lambda start, stop, multiplier, rnd: round(abs(stop - start) * float(multiplier), rnd)
         elapsed = get_elapsed(start, stop, 1000.00, 1)
         total = "%0.1f ms" % (elapsed)
-        self.logger.info("Request {}response {} {} in {}".format(
+
+        body = ""
+        if req.has_body():
+            body = dict(req.body_kwargs)
+            if body:
+                IGNORE_KEYS = [
+                    "password",
+                    "sensitive",
+                    "ssn",
+                    "dob",
+                ]
+                for k in IGNORE_KEYS:
+                    if k in body:
+                        body[k] = "****"
+                self.logger.debug("BODY: {}".format(body))
+
+        body_str = ''.join(str(body).splitlines())
+        body_param = f"BODY:\"{body_str}\""
+
+        log_value = f"REQUEST {req.method} {req.path} {res.code} {body_param} uuid:{uuid} in {total} "
+        if req.path == "/ping":
+            self.logger.debug(log_value)
+        else:
+            if req.path == "/track/event":
+                log_value = f"REQUEST {req.method} {req.path} {res.code} uuid:{uuid} in {total} "
+
+            self.logger.info(log_value)
+
+
+        self.logger.debug("Request {}response {} {} in {}".format(
             uuid,
             self.response.code,
             self.response.status,
